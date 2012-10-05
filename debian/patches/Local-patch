@@ -1,0 +1,136 @@
+Description: <short summary of the patch>
+ TODO: Put a short summary on the line above and replace this paragraph
+ with a longer explanation of this change. Complete the meta-information
+ with other relevant fields (see below for details). To make it easier, the
+ information below has been extracted from the changelog. Adjust it or drop
+ it.
+ .
+ dwm (6.0-5) UNRELEASED; urgency=low
+ .
+   * debian/control
+     + Changed Homepage to http://dwm.suckless.org thanks to David Kalnischkies
+       for pointing out
+Author: Vasudev Kamath <kamathvasudev@gmail.com>
+
+---
+The information above should follow the Patch Tagging Guidelines, please
+checkout http://dep.debian.net/deps/dep3/ to learn about the format. Here
+are templates for supplementary fields that you might want to add:
+
+Origin: <vendor|upstream|other>, <url of original patch>
+Bug: <url in upstream bugtracker>
+Bug-Debian: http://bugs.debian.org/<bugnumber>
+Bug-Ubuntu: https://launchpad.net/bugs/<bugnumber>
+Forwarded: <no|not-needed|url proving that it has been forwarded>
+Reviewed-By: <name and email of someone who approved the patch>
+Last-Update: <YYYY-MM-DD>
+
+--- dwm-6.0.orig/Makefile
++++ dwm-6.0/Makefile
+@@ -16,45 +16,45 @@ options:
+ 
+ .c.o:
+ 	@echo CC $<
+-	${CC} -c ${CFLAGS} $<
++	@${CC} -c ${CFLAGS} $<
+ 
+ ${OBJ}: config.h config.mk
+ 
+ config.h:
+ 	@echo creating $@ from config.def.h
+-	cp config.def.h $@
++	@cp config.def.h $@
+ 
+ dwm: ${OBJ}
+ 	@echo CC -o $@
+-	${CC} -o $@ ${OBJ} ${LDFLAGS}
++	@${CC} -o $@ ${OBJ} ${LDFLAGS}
+ 
+ clean:
+ 	@echo cleaning
+-	rm -f dwm ${OBJ} dwm-${VERSION}.tar.gz
++	@rm -f dwm ${OBJ} dwm-${VERSION}.tar.gz
+ 
+ dist: clean
+ 	@echo creating dist tarball
+-	mkdir -p dwm-${VERSION}
+-	cp -R LICENSE Makefile README config.def.h config.mk \
++	@mkdir -p dwm-${VERSION}
++	@cp -R LICENSE Makefile README config.def.h config.mk \
+ 		dwm.1 ${SRC} dwm-${VERSION}
+-	tar -cf dwm-${VERSION}.tar dwm-${VERSION}
+-	gzip dwm-${VERSION}.tar
+-	rm -rf dwm-${VERSION}
++	@tar -cf dwm-${VERSION}.tar dwm-${VERSION}
++	@gzip dwm-${VERSION}.tar
++	@rm -rf dwm-${VERSION}
+ 
+ install: all
+ 	@echo installing executable file to ${DESTDIR}${PREFIX}/bin
+-	mkdir -p ${DESTDIR}${PREFIX}/bin
+-	cp -f dwm ${DESTDIR}${PREFIX}/bin
+-	chmod 755 ${DESTDIR}${PREFIX}/bin/dwm
++	@mkdir -p ${DESTDIR}${PREFIX}/bin
++	@cp -f dwm ${DESTDIR}${PREFIX}/bin
++	@chmod 755 ${DESTDIR}${PREFIX}/bin/dwm
+ 	@echo installing manual page to ${DESTDIR}${MANPREFIX}/man1
+ 	@mkdir -p ${DESTDIR}${MANPREFIX}/man1
+-	sed "s/VERSION/${VERSION}/g" < dwm.1 > ${DESTDIR}${MANPREFIX}/man1/dwm.1
+-	chmod 644 ${DESTDIR}${MANPREFIX}/man1/dwm.1
++	@sed "s/VERSION/${VERSION}/g" < dwm.1 > ${DESTDIR}${MANPREFIX}/man1/dwm.1
++	@chmod 644 ${DESTDIR}${MANPREFIX}/man1/dwm.1
+ 
+ uninstall:
+ 	@echo removing executable file from ${DESTDIR}${PREFIX}/bin
+-	rm -f ${DESTDIR}${PREFIX}/bin/dwm
++	@rm -f ${DESTDIR}${PREFIX}/bin/dwm
+ 	@echo removing manual page from ${DESTDIR}${MANPREFIX}/man1
+-	rm -f ${DESTDIR}${MANPREFIX}/man1/dwm.1
++	@rm -f ${DESTDIR}${MANPREFIX}/man1/dwm.1
+ 
+ .PHONY: all options clean dist install uninstall
+--- dwm-6.0.orig/config.def.h
++++ dwm-6.0/config.def.h
+@@ -19,7 +19,6 @@ static const char *tags[] = { "1", "2",
+ static const Rule rules[] = {
+ 	/* class      instance    title       tags mask     isfloating   monitor */
+ 	{ "Gimp",     NULL,       NULL,       0,            True,        -1 },
+-	{ "Firefox",  NULL,       NULL,       1 << 8,       False,       -1 },
+ };
+ 
+ /* layout(s) */
+@@ -35,7 +34,7 @@ static const Layout layouts[] = {
+ };
+ 
+ /* key definitions */
+-#define MODKEY Mod1Mask
++#define MODKEY Mod4Mask
+ #define TAGKEYS(KEY,TAG) \
+ 	{ MODKEY,                       KEY,      view,           {.ui = 1 << TAG} }, \
+ 	{ MODKEY|ControlMask,           KEY,      toggleview,     {.ui = 1 << TAG} }, \
+@@ -66,8 +65,6 @@ static Key keys[] = {
+ 	{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
+ 	{ MODKEY,                       XK_f,      setlayout,      {.v = &layouts[1]} },
+ 	{ MODKEY,                       XK_m,      setlayout,      {.v = &layouts[2]} },
+-	{ MODKEY,                       XK_space,  setlayout,      {0} },
+-	{ MODKEY|ShiftMask,             XK_space,  togglefloating, {0} },
+ 	{ MODKEY,                       XK_0,      view,           {.ui = ~0 } },
+ 	{ MODKEY|ShiftMask,             XK_0,      tag,            {.ui = ~0 } },
+ 	{ MODKEY,                       XK_comma,  focusmon,       {.i = -1 } },
+--- dwm-6.0.orig/config.mk
++++ dwm-6.0/config.mk
+@@ -19,11 +19,11 @@ INCS = -I. -I/usr/include -I${X11INC}
+ LIBS = -L/usr/lib -lc -L${X11LIB} -lX11 ${XINERAMALIBS}
+ 
+ # flags
+-CPPFLAGS += -DVERSION=\"${VERSION}\" ${XINERAMAFLAGS}
++CPPFLAGS = -DVERSION=\"${VERSION}\" ${XINERAMAFLAGS}
+ #CFLAGS = -g -std=c99 -pedantic -Wall -O0 ${INCS} ${CPPFLAGS}
+-CFLAGS += -std=c99 -pedantic -Wall ${INCS} ${CPPFLAGS}
++CFLAGS = -std=c99 -pedantic -Wall -Os ${INCS} ${CPPFLAGS}
+ #LDFLAGS = -g ${LIBS}
+-LDFLAGS += -s ${LIBS}
++LDFLAGS = -s ${LIBS}
+ 
+ # Solaris
+ #CFLAGS = -fast ${INCS} -DVERSION=\"${VERSION}\"
