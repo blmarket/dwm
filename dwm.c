@@ -228,6 +228,7 @@ static void tag(const Arg *arg);
 static void tagmon(const Arg *arg);
 static int textnw(const char *text, unsigned int len);
 static void tile(Monitor *);
+static void tilecenter(Monitor *);
 static void togglebar(const Arg *arg);
 static void togglefloating(const Arg *arg);
 static void toggletag(const Arg *arg);
@@ -1725,6 +1726,35 @@ tile(Monitor *m) {
 			resize(c, m->wx + mw, m->wy + ty, m->ww - mw - (2*c->bw), h - (2*c->bw), False);
 			ty += HEIGHT(c);
 		}
+}
+
+void
+tilecenter(Monitor *m) {
+	unsigned int i, n, h, mw, my, ty, t1, b1;
+	Client *c;
+
+	for(n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
+
+        if(n != 5) return tile(m);
+
+        ty = (m->wh - (int)(m->wh * m->mfact)) / 2;
+	for(i = t1 = b1 = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++) {
+                if(i == 0) {
+                        h = (m->wh * m->mfact);
+                        resize(c, m->wx, m->wy + ty, m->ww - (2*c->bw), h - (2*c->bw), False);
+                } else if(i < 3) {
+                        int w = (m->ww - t1) / (3-i);
+                        h = ty;
+                        resize(c, m->wx + t1, m->wy, w - (2*c->bw), ty - (2*c->bw), False);
+                        t1 += WIDTH(c);
+                } else {
+                        int mainheight = (m->wh * m->mfact);
+                        int w = (m->ww - b1) / (5-i);
+                        h = ty;
+                        resize(c, m->wx + b1, m->wy + ty + mainheight, w - (2*c->bw), ty - (2*c->bw), False);
+                        b1 += WIDTH(c);
+                }
+        }
 }
 
 void
